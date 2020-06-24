@@ -1,0 +1,59 @@
+---
+title: "Past GE Visualizations"
+output: html_notebook
+author: Louisa Ong
+---
+
+```{r}
+csv <- read.csv("parliamentary-general-election-results-by-candidate.csv")
+
+head(csv)
+
+```
+
+```{r}
+
+library(ggplot2)
+library(hrbrthemes)
+
+import_roboto_condensed()
+
+library(dplyr)
+library(stringr)
+
+csv$vote_percentage <- as.numeric(as.character(csv$vote_percentage))
+
+# filtering to show only wins
+data_filtered <- csv %>% 
+  filter(vote_percentage > 0.5) %>%
+  filter(str_detect(party, 'WP|PAP|Independent|SDP|SPP')) # the only parties with wins
+
+table(data_filtered$party)
+
+# Plot visualizations
+a1 <- ggplot(data_filtered, aes(x = year, fill = party)) + 
+  labs(title = "Singapore General Election Wins by Party (1972 - 2015)", 
+  subtitle = "Source: Data.gov.sg", 
+  caption = "Note: Numbers do not include Walkover seats",
+  x = "Year", 
+  y = "Seats Won")
+  
+a2 <- a1 + 
+  geom_bar(position = "dodge") +
+  theme_ipsum_rc() +
+  scale_fill_manual(values = 
+                      c("#534957", # Independent 
+                        "#00539b", # PAP
+                        "#fe0000", # SPP
+                        "#910000", # SDP 
+                        "#b2e5ff")) # WP 
+
+  
+a3 <- a2 + 
+  facet_grid(cols = NULL, 
+             # scales = "free_y",
+             facets = data_filtered$party)
+
+
+a3
+```
