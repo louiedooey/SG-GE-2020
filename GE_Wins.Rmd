@@ -1,0 +1,50 @@
+---
+title: "Singapore Opposition GE Wins Visualization"
+author: "Louisa Ong"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r}
+library(ggplot2)
+library(hrbrthemes)
+library(tidyr)
+library(dplyr)
+import_roboto_condensed()
+
+results <- read.csv("results.csv")
+# View(results)
+
+rsl <- results %>% 
+  slice(1:9) %>% 
+  within(rm(X2006)) %>%
+  gather("year", "votes", 2:4)
+
+rsl$year <- rsl$year %>% 
+  recode('X2020' = 2020, 'X2015' = 2015, 'X2011' = 2011) # %>% 
+  # as.factor() 
+
+View(rsl)
+
+# Plot visualizations
+g20 <- ggplot() + 
+  labs(title = "Singapore General Election Opposition Wins (2011 - 2020)", 
+  subtitle = "Source: eld.gov.sg", 
+  caption = "*Seng Kang West SMC was used for 2011 & 2015 as Seng Kang GRC is new") + 
+  theme_ipsum_rc(grid = "Y")
+  # y = "Opposition Seats Won")
+
+cbPalette = c("#278f73","#303c8a", "#672791", "#26bcc7", "#000000", "#992993", "#7e75ff", "#6aad81", "#b2e5ff")
+
+plt <- g20 + 
+  geom_line(data = rsl, aes(x = year, y = votes, color = GRC), size = 1.1) +
+  geom_point(data = rsl, aes(x = year, y = votes, color = GRC), size = 2) +
+  scale_y_continuous(name = "Votes for Opposition (% of Total Valid Votes)", limits = c(0, 100)) + 
+  # axis(1, xaxp = c(2011, 2015, 2020), las = 2) 
+  scale_x_continuous(breaks = c(2011, 2015, 2020)) + 
+  scale_colour_manual(values= cbPalette)
+  
+
+plt
+```
